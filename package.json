@@ -1,0 +1,21 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "3.4.8",
+    "redis": "0.9.x",
+    "nock": "0.27.x",
+    "mocha": "1.17.x",
+    "supertest": "0.9.x",
+    "express-useragent": "0.0.9-1",
+    "express-request-logger": "0.0.x",
+    "connect-requestid": "1.0.x",
+    "cloudy-ubersmith": "0.1.x",
+    "contegix-logger": "0.1.x",
+    "jade": "1.1.x"
+  }
+}
