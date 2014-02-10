@@ -5,7 +5,7 @@ config.http = {};
 config.cookie = {};
 config.log = {};
 config.ubersmith = {};
-config.ubersmith.warm_cache = false;
+config.ubersmith.warm_cache = true;
 config.log.access_log = './access.log';
 config.log.directory = process.env.LOG_DIR || './';
 

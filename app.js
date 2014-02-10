@@ -3,7 +3,7 @@
  * Module dependencies.
  */
 
-require('./config/system-credentials.js');
+var credentials = require('./config/system-credentials.js');
 var config = require('./config');
 var ctxlog = require('contegix-logger');
 var logger = ctxlog('OrangeKoolAid', 'error', config.log.directory);
@@ -14,10 +14,10 @@ var reqLogger = require('express-request-logger');
 var fs = require('fs');
 var logstream = fs.createWriteStream(config.log.access_log, {flags: 'a'});
 
-//require('./nockUps');
+require('./nockUps');
 
 try {
-  var ubersmithConfig = {redisPort: config.redis.port, redisHost: config.redis.host, redisDb: config.redis.db, uberAuth: UberAuth, logLevel: 'error', logDir: config.log.directory, warm_cache: config.ubersmith.warm_cache};
+  var ubersmithConfig = {redisPort: config.redis.port, redisHost: config.redis.host, redisDb: config.redis.db, uberAuth: credentials.ubersmith, logLevel: 'error', logDir: config.log.directory, warm_cache: config.ubersmith.warm_cache};
   var ubersmith = require('cloudy-ubersmith')(ubersmithConfig);
 } catch(e) {
   logger.log('error', 'Could not Initialize Ubersmith', { error: JSON.stringify(e)});
@@ -178,7 +178,7 @@ app.get('/devices/typegroup/:typegroupid', function (req, res, next) {
 });
 
 app.get('/devices/meta/typelist', function (req, res, next) {
-  ubersmith.getDevicesByRack(req.params.rackid, function (error, reply) {
+  ubersmith.getDevicesByRack(function (error, reply) {
     if (error) {
       res.send(500);
     } else {
@@ -189,7 +189,7 @@ app.get('/devices/meta/typelist', function (req, res, next) {
 });
 
 app.get('/devices/meta/hostnames', function (req, res, next) {
-  ubersmith.getDevicesByRack(req.params.rackid, function (error, reply) {
+  ubersmith.getDevicesByRack(function (error, reply) {
     if (error) {
       res.send(500);
     } else {
