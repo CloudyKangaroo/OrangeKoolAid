@@ -2,31 +2,47 @@
 /**
  * Module dependencies.
  */
-
 var credentials = {};
-credentials.ubersmith = {username: 'jonathan.creasy', password: 'z2bBZvGXqykbkgLL3T6x2f9pKRQ6Nd8F', url: 'https://portal.contegix.com/api/2.0'};
 
+try {
+  credentials = require('./config/system-credentials.js');
+} catch (e) {
+  if (e.code == 'MODULE_NOT_FOUND')
+  {
+    credentials.ubersmith =
+    {
+      username: 'fake.user',
+      password: 'notarealpassword',
+      url: 'https://portal.fakeubersmith.com/api/2.0'
+    };
+  }
+}
 var config = require('./config');
 var ctxlog = require('contegix-logger');
 
 if (process.env.NODE_ENV == 'test') {
   config.log.name = 'OrangeKoolAid-Tests';
   config.log.directory = './';
-  config.log.level = 'error';
+  config.mgmtDomain = '.example.org';
+  //config.log.level = 'hide';
+
+  /*credentials.ubersmith =
+  {
+    username: 'fake.user',
+    password: 'notarealpassword',
+    host: 'portal.fakeubersmith.com',
+    url: 'https://portal.fakeubersmith.com/api/2.0'
+  };*/
 }
 
-if (process.env.NODE_ENV == 'production') {
-  var fs = require('fs');
-  var logstream = fs.createWriteStream(config.log.access_log, {flags: 'a'});
-}
+require ('./nockUps');
 
+var fs = require('fs');
+var logstream = fs.createWriteStream(config.log.access_log, {flags: 'a'});
 var logger = ctxlog(config.log.name, config.log.level, config.log.directory);
 
 var useragent = require('express-useragent');
 var reqLogger = require('express-request-logger');
-
-//require('./nockUps');
-
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -39,12 +55,12 @@ app.configure('test', function(){
 if (!config.redis.db || config.redis.db == 0) {
   config.redis.db = 6;
 }
-try {
-  var ubersmithConfig = {redisPort: config.redis.port, redisHost: config.redis.host, redisDb: config.redis.db, uberAuth: credentials.ubersmith, logLevel: config.log.level, logDir: config.log.directory, warm_cache: config.ubersmith.warm_cache};
+//try {
+  var ubersmithConfig = {mgmtDomain: config.mgmtDomain, redisPort: config.redis.port, redisHost: config.redis.host, redisDb: config.redis.db, uberAuth: credentials.ubersmith, logLevel: config.log.level, logDir: config.log.directory, warm_cache: config.ubersmith.warm_cache};
   var ubersmith = require('cloudy-ubersmith')(ubersmithConfig);
-} catch(e) {
-  logger.log('error', 'Could not Initialize Ubersmith', { error: JSON.stringify(e)});
-}
+//} catch(e) {
+//  logger.log('error', 'Could not Initialize Ubersmith', { error: JSON.stringify(e)});
+//}
 
 app.locals.ubersmith = ubersmith;
 
@@ -66,6 +82,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+} else {
   app.use(express.errorHandler());
 }
 
@@ -174,7 +192,7 @@ app.get('/devices/rack/:rackid', function (req, res, next) {
 });
 
 app.get('/devices/clientid/:clientid', function (req, res, next) {
-  ubersmith.getDevicesByClientID(req.params.clientid, function (error, reply) {
+  ubersmith.getDevicesbyClientID(req.params.clientid, function (error, reply) {
     if (error) {
       res.send(500);
     } else {
@@ -346,4 +364,5 @@ app.get('/'
 http.createServer(app).listen(app.get('port'), function(){
   logger.log('info', 'Express server listening on port ' + app.get('port'), {});
 });
+
 module.exports = app;

@@ -5,6 +5,7 @@ config.http = {};
 config.cookie = {};
 config.log = {};
 config.ubersmith = {};
+config.mgmtDomain = '.contegix.mgmt';
 config.ubersmith.warm_cache = false;
 config.log.name = 'OrangeKoolAid';
 config.log.access_log = './access.log';

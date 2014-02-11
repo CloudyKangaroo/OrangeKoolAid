@@ -10,6 +10,7 @@
     "redis": "0.9.x",
     "nock": "0.27.x",
     "mocha": "1.17.x",
+    "assert": "1.1.x",
     "supertest": "0.9.x",
     "express-useragent": "0.0.9-1",
     "express-request-logger": "0.0.x",
